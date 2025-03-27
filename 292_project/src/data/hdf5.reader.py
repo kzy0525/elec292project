@@ -1,0 +1,21 @@
+import h5py
+
+# Relative path to the HDF5 file
+hdf5_path = "../data/accelerometer_data.h5"
+
+def explore_hdf5_file(file_path):
+    with h5py.File(file_path, "r") as hdf:
+        print("📂 File structure:")
+        hdf.visititems(lambda name, obj: print(f"  - {name}"))
+
+        print("\n🧪 Available participant data:")
+        for participant in hdf["raw"]:
+            for position in hdf[f"raw/{participant}"]:
+                for activity in hdf[f"raw/{participant}/{position}"]:
+                    path = f"raw/{participant}/{position}/{activity}"
+                    data = hdf[path][:5]
+                    print(f"\n🔹 {path} → Shape: {hdf[path].shape}")
+                    print(data)
+
+if __name__ == "__main__":
+    explore_hdf5_file(hdf5_path)
