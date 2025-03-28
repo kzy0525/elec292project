@@ -105,29 +105,28 @@ def plot_histograms_per_axis(walking_data, jumping_data, bins=60):
     plt.show()
 
 # 🔹 Compare raw vs. preprocessed data (for a specific axis)
-def compare_raw_vs_preprocessed(position="jacket", activity="walking", participant="kevin", axis=0):
-    """
-    Compare raw and preprocessed accelerometer signals for one axis (0 = x, 1 = y, 2 = z)
-    """
-    with h5py.File(hdf5_path, "r") as hdf:
-        raw_path = f"raw/{participant}/{position}/{activity}"
-        pre_path = f"preprocessed/{participant}/{position}/{activity}"
+def compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity="walking", axis=0):
+    raw_path = f"raw/{participant}/{position}/{activity}"
+    pre_path = f"preprocessed/{participant}/{position}/{activity}"
 
-        if raw_path not in hdf or pre_path not in hdf:
-            print(f"❌ Dataset not found: {raw_path} or {pre_path}")
+    with h5py.File("data/accelerometer_data.h5", "r") as raw_hdf, \
+         h5py.File("data/accelerometer_preprocessed.h5", "r") as pre_hdf:
+
+        if raw_path not in raw_hdf or pre_path not in pre_hdf:
+            print(f"❌ Path missing in one of the files:\n{raw_path}\n{pre_path}")
             return
 
-        raw = hdf[raw_path][:]
-        clean = hdf[pre_path][:]
+        raw = raw_hdf[raw_path][:]
+        clean = pre_hdf[pre_path][:]
 
-        time = np.arange(len(raw))
+        time = raw[:, 0]  # Assumes time values are the same
         axis_name = ['X', 'Y', 'Z'][axis]
 
         plt.figure(figsize=(12, 5))
-        plt.plot(time, raw[:, axis], label=f"Raw {axis_name}", alpha=0.5)
-        plt.plot(time, clean[:, axis], label=f"Smoothed {axis_name}", linewidth=2)
-        plt.title(f"{axis_name}-Axis - Raw vs. Preprocessed\n{participant.title()} - {position.title()} - {activity.title()}")
-        plt.xlabel("Sample Index")
+        plt.plot(time, raw[:, axis + 1], label=f"Raw {axis_name}", alpha=0.5)
+        plt.plot(time, clean[:, axis + 1], label=f"Smoothed {axis_name}", linewidth=2)
+        plt.title(f"{axis_name}-Axis: Raw vs. Preprocessed\n{participant.title()} - {position.title()} - {activity.title()}")
+        plt.xlabel("Time (s)")
         plt.ylabel("Acceleration (m/s²)")
         plt.legend()
         plt.grid(True)
@@ -136,6 +135,8 @@ def compare_raw_vs_preprocessed(position="jacket", activity="walking", participa
 
 # 🔸 MAIN 🔸
 if __name__ == "__main__":
+
+    compare_raw_vs_preprocessed(participant="kevin", position="hand", activity="walking", axis=0)
     # View walking data for any participant (change the name below)
     visualize_acceleration_for_participant("kevin")
     #visualize_walking_for_participant("evan")

@@ -1,53 +1,48 @@
 import h5py
-import pandas as pd
 import numpy as np
-from scipy.ndimage import uniform_filter1d
+import pandas as pd
 import os
 
-# Paths
-input_path = "data/accelerometer_data.h5"
-output_path = "data/accelerometer_data.h5"  # We'll update in-place
+# Input/output HDF5 paths
+raw_hdf5_path = "data/accelerometer_data.h5"
+pre_hdf5_path = "data/accelerometer_preprocessed.h5"
 
-# Parameters
-WINDOW_SIZE = 50  # for moving average smoothing
+WINDOW_SIZE = 5
 
 
-def preprocess_data(raw_data):
-    # Fill missing values with linear interpolation
-    df = pd.DataFrame(raw_data, columns=["x", "y", "z"])
-    df = df.interpolate(method='linear').fillna(method='bfill').fillna(method='ffill')
-
-    # Apply moving average filter
-    smoothed = uniform_filter1d(df.values, size=WINDOW_SIZE, axis=0)
+def moving_average_filter(data, window=WINDOW_SIZE):
+    smoothed = np.copy(data)
+    for i in range(1, 4):  # x, y, z
+        smoothed[:, i] = pd.Series(data[:, i]).rolling(window=window, min_periods=1, center=True).mean()
     return smoothed
 
 
-def process_all_kevin_data():
-    with h5py.File(input_path, "r+") as hdf:
-        for position in hdf["raw/kevin"]:
-            for activity in hdf[f"raw/kevin/{position}"]:
-                raw_dataset_path = f"raw/kevin/{position}/{activity}"
-                raw_data = hdf[raw_dataset_path][:]
+def fill_missing(data):
+    df = pd.DataFrame(data, columns=["time", "x", "y", "z", "label"])
+    df = df.fillna(method="ffill").fillna(method="bfill")
+    return df.to_numpy(dtype=np.float32)
 
-                # Preprocess the data
-                cleaned_data = preprocess_data(raw_data)
 
-                # Build output path
-                group_path = f"preprocessed/kevin/{position}"
-                dataset_path = f"{group_path}/{activity}"
+def preprocess_and_save():
+    with h5py.File(raw_hdf5_path, "r") as raw_hdf, h5py.File(pre_hdf5_path, "w") as pre_hdf:
+        pre_group = pre_hdf.create_group("preprocessed")
 
-                # Create group if it doesn't exist
-                if group_path not in hdf:
-                    hdf.create_group(group_path)
+        for participant in raw_hdf["raw"]:
+            for position in raw_hdf["raw"][participant]:
+                for activity in raw_hdf["raw"][participant][position]:
+                    path = f"raw/{participant}/{position}/{activity}"
+                    data = raw_hdf[path][:]
 
-                # Delete old dataset if it exists (for reruns)
-                if dataset_path in hdf:
-                    del hdf[dataset_path]
+                    # Preprocess: fill NaNs and apply moving average
+                    data = fill_missing(data)
+                    data = moving_average_filter(data)
 
-                # Save cleaned data
-                hdf.create_dataset(dataset_path, data=cleaned_data)
-                print(f"✅ Preprocessed and saved: {dataset_path}")
+                    # Save to new HDF5
+                    group_path = f"preprocessed/{participant}/{position}"
+                    pre_hdf.require_group(group_path)
+                    pre_hdf.create_dataset(f"{group_path}/{activity}", data=data, compression="gzip")
+                    print(f"✅ Saved to new file: {group_path}/{activity}")
 
 
 if __name__ == "__main__":
-    process_all_kevin_data()
+    preprocess_and_save()
