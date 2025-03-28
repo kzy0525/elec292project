@@ -102,16 +102,23 @@ class PredictionApp:
         })
 
         # === Plot ===
+        # === Scatter Plot ===
         self.ax.clear()
-        self.ax.plot(self.predictions["Window #"],
-                     [1 if label == "jumping" else 0 for label in self.predictions["Predicted Class"]],
-                     marker='o', linestyle='-', color='royalblue')
+        y_numeric = [1 if label == "jumping" else 0 for label in self.predictions["Predicted Class"]]
+
+        # Create a color list based on class
+        colors = ['red' if y == 1 else 'blue' for y in y_numeric]
+
+        # Scatter plot with color per point
+        self.ax.scatter(self.predictions["Window #"], y_numeric,
+                        c=colors, marker='o', alpha=0.8)
         self.ax.set_title("Activity vs Time (Window Index)")
         self.ax.set_ylabel("Activity")
         self.ax.set_xlabel("Window #")
         self.ax.set_yticks([0, 1])
-        self.ax.set_yticklabels(["Walking", "Jumping"])
+        self.ax.set_yticklabels(["Walking (Blue)", "Jumping (Red)"])
         self.ax.grid(True)
+
         self.fig.tight_layout(pad=3.0)
 
         # Only now show the canvas for the first time
