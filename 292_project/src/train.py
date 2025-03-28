@@ -7,23 +7,23 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-# Default paths
+# paths
 DEFAULT_FEATURES_CSV = "data/features_normalized.csv"
 OUTPUT_PREDICTIONS_CSV = "data/predictions.csv"
 
-# Step 0: Accept CSV path from command line (optional)
+# accept csv from command
 if len(sys.argv) > 1:
     FEATURES_CSV = sys.argv[1]
 else:
     FEATURES_CSV = DEFAULT_FEATURES_CSV
 
-# Step 1: Load features
+# load the features
 print(f"Loading features from {FEATURES_CSV}...")
 df = pd.read_csv(FEATURES_CSV)
 X = df.drop("label", axis=1).values if "label" in df.columns else df.values
 y = df["label"].values if "label" in df.columns else None
 
-# Step 2: If labels exist, do train/test split and train model
+# split the model into 90:10 ration of training and testing, then classify
 if y is not None:
     # Train/test split (90/10, no overlap)
     X_train, X_test, y_train, y_test = train_test_split(
@@ -74,7 +74,7 @@ if y is not None:
 
 # Step 3: If no labels, make predictions using pretrained model
 else:
-    print("⚠️ No labels found in input CSV. Skipping training, predicting only.")
+    print("No labels found in input CSV. Skipping training, predicting only.")
     # Load model (could be replaced with pre-trained model loader)
     model = LogisticRegression(max_iter=500)
     model.fit(X, np.zeros(X.shape[0]))  # Dummy training

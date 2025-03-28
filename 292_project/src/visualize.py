@@ -1,11 +1,10 @@
 import h5py
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Path to the HDF5 file
+# path to the HDF5 file
 hdf5_path = "data/accelerometer_data.h5"
 
-# 🔹 Plot X, Y, Z acceleration vs. time
+# creates plots for all the jumping and walking data (hands, jacket pockets, pants pockets) for the specified person
 def plot_acceleration(data, title):
     plt.figure(figsize=(10, 5))
     time = data[:, 0]
@@ -20,36 +19,11 @@ def plot_acceleration(data, title):
     plt.tight_layout()
     plt.show()
 
-def plot_3d_acceleration_scatter(walking_data, jumping_data):
-    """
-    walking_data and jumping_data are numpy arrays with at least columns:
-    [time, x, y, z]
-    """
-    fig = plt.figure(figsize=(10, 7))
-    ax = fig.add_subplot(111, projection='3d')
-
-    # Plot walking data in blue
-    ax.scatter(walking_data[:, 1], walking_data[:, 2], walking_data[:, 3],
-               c='dodgerblue', alpha=0.4, label='Walking')
-
-    # Plot jumping data in red
-    ax.scatter(jumping_data[:, 1], jumping_data[:, 2], jumping_data[:, 3],
-               c='crimson', alpha=0.4, label='Jumping')
-
-    ax.set_xlabel("X Acceleration (m/s²)")
-    ax.set_ylabel("Y Acceleration (m/s²)")
-    ax.set_zlabel("Z Acceleration (m/s²)")
-    ax.set_title("3D Scatter Plot of Acceleration")
-    ax.legend()
-    plt.tight_layout()
-    plt.show()
-
-# 🔹 Visualize walking data for any participant and all positions
 def visualize_acceleration_for_participant(participant):
     with h5py.File(hdf5_path, "r") as hdf:
         base_path = f"raw/{participant}"
         if base_path not in hdf:
-            print(f"❌ No data found for participant: {participant}")
+            print(f"No data found for participant: {participant}")
             return
 
         for position in hdf[base_path]:
@@ -60,8 +34,36 @@ def visualize_acceleration_for_participant(participant):
                     title = f"{participant.title()} - {position.title()} - {activity.title()}"
                     plot_acceleration(data, title)
                 else:
-                    print(f"⚠️  No {activity} data for {participant} at {position}")
+                    print(f"No {activity} data for {participant} at {position}")
 
+
+# plots a 3d scatter plot for the walking and jumping data for visualization
+def plot_3d_acceleration_scatter_separate(walking_data, jumping_data, participant, position):
+    # --- Walking Plot ---
+    fig1 = plt.figure(figsize=(8, 6))
+    ax1 = fig1.add_subplot(111, projection='3d')
+    ax1.scatter(walking_data[:, 1], walking_data[:, 2], walking_data[:, 3],
+                c='dodgerblue', alpha=0.5, label='Walking')
+    ax1.set_xlabel("X Acceleration (m/s²)")
+    ax1.set_ylabel("Y Acceleration (m/s²)")
+    ax1.set_zlabel("Z Acceleration (m/s²)")
+    ax1.set_title(f"3D Scatter Plot - Walking\nParticipant: {participant}, Position: {position}")
+    ax1.legend()
+    plt.tight_layout()
+
+    # --- Jumping Plot ---
+    fig2 = plt.figure(figsize=(8, 6))
+    ax2 = fig2.add_subplot(111, projection='3d')
+    ax2.scatter(jumping_data[:, 1], jumping_data[:, 2], jumping_data[:, 3],
+                c='crimson', alpha=0.5, label='Jumping')
+    ax2.set_xlabel("X Acceleration (m/s²)")
+    ax2.set_ylabel("Y Acceleration (m/s²)")
+    ax2.set_zlabel("Z Acceleration (m/s²)")
+    ax2.set_title(f"3D Scatter Plot - Jumping\nParticipant: {participant}, Position: {position}")
+    ax2.legend()
+    plt.tight_layout()
+
+    plt.show()
 
 def visualize_3d_scatter_for(participant, position):
     with h5py.File(hdf5_path, "r") as hdf:
@@ -71,10 +73,12 @@ def visualize_3d_scatter_for(participant, position):
         if walking_path in hdf and jumping_path in hdf:
             walking = hdf[walking_path][:]
             jumping = hdf[jumping_path][:]
-            plot_3d_acceleration_scatter(walking, jumping)
+            plot_3d_acceleration_scatter_separate(walking, jumping, participant, position)
         else:
-            print(f"❌ One or both datasets not found for {participant} at {position}")
+            print(f"One or both datasets not found for {participant} at {position}")
 
+
+# creates histograms for all the data based on frequency vs acceleration values
 def visualize_histograms_for(participant, position):
     with h5py.File(hdf5_path, "r") as hdf:
         walking_path = f"raw/{participant}/{position}/walking"
@@ -84,7 +88,7 @@ def visualize_histograms_for(participant, position):
             jumping = hdf[jumping_path][:]
             plot_histograms_per_axis(walking, jumping)
         else:
-            print(f"❌ Cannot plot histograms: Missing data for {participant} at {position}")
+            print(f"Cannot plot histograms: Missing data for {participant} at {position}")
 
 def plot_histograms_per_axis(walking_data, jumping_data, bins=60):
     axis_names = ['X', 'Y', 'Z']
@@ -113,13 +117,12 @@ def compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity
          h5py.File("data/accelerometer_preprocessed.h5", "r") as pre_hdf:
 
         if raw_path not in raw_hdf or pre_path not in pre_hdf:
-            print(f"❌ Path missing in one of the files:\n{raw_path}\n{pre_path}")
+            print(f"Path missing in one of the files:\n{raw_path}\n{pre_path}")
             return
 
         raw = raw_hdf[raw_path][:]
         clean = pre_hdf[pre_path][:]
-
-        time = raw[:, 0]  # Assumes time values are the same
+        time = raw[:, 0]
         axis_name = ['X', 'Y', 'Z'][axis]
 
         plt.figure(figsize=(12, 5))
@@ -133,19 +136,21 @@ def compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity
         plt.tight_layout()
         plt.show()
 
-# 🔸 MAIN 🔸
+# main file to call on the visualization functions
 if __name__ == "__main__":
-
+    #comparing the smoothed preprocessed data vs raw data (x = 0, y = 1, z = 2)
     compare_raw_vs_preprocessed(participant="kevin", position="hand", activity="walking", axis=0)
-    # View walking data for any participant (change the name below)
-    visualize_acceleration_for_participant("kevin")
-    #visualize_walking_for_participant("evan")
-    #visualize_walking_for_participant("simon")
+    #compare_raw_vs_preprocessed(participant="kevin", position="pants", activity="jumping", axis=1)
+    #compare_raw_vs_preprocessed(participant="evan", position="jacket", activity="walking", axis=2)
 
-    # Visualize 3D scatter for a participant-position pair
-    visualize_3d_scatter_for("kevin", "hand")
+    #graphs for all the acceleration vs time graphs
+    #visualize_acceleration_for_participant("kevin")
+    #visualize_acceleration_for_participant("evan")
 
-    # Compare raw vs. preprocessed (make sure preprocessing has been done)
-    # compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity="walking", axis=0)
+    #graphs for 3d scatter plots
+    #visualize_3d_scatter_for("kevin", "hand")
+    #visualize_3d_scatter_for("evan", "jacket")
 
-    visualize_histograms_for("kevin", "hand")
+    #graphs for the frequency histograms
+    #visualize_histograms_for("kevin", "hand")
+    #visualize_histograms_for("evan", "jacket")

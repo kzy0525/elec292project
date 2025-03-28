@@ -41,8 +41,7 @@ def preprocess_and_save():
                     group_path = f"preprocessed/{participant}/{position}"
                     pre_hdf.require_group(group_path)
                     pre_hdf.create_dataset(f"{group_path}/{activity}", data=data, compression="gzip")
-                    print(f"✅ Saved to new file: {group_path}/{activity}")
-
+                    print(f"Saved to new file: {group_path}/{activity}")
 
 if __name__ == "__main__":
     preprocess_and_save()

@@ -1,9 +1,8 @@
-# segment_windows.py
 import h5py
 import numpy as np
-import os
 
-# Paths
+
+# paths
 PRE_HDF = "data/accelerometer_preprocessed.h5"
 WIN_HDF = "data/windowed_segments.h5"
 
@@ -42,9 +41,9 @@ def segment_and_save():
             group = win_hdf.require_group(key)
             for i, window in enumerate(segments):
                 group.create_dataset(f"segment_{i}", data=window, compression="gzip")
-                print(f"✅ Saved {key}/segment_{i} [{window.shape}]")
+                print(f"Saved {key}/segment_{i} [{window.shape}]")
 
-    print(f"\n🎉 All segmented data saved to {WIN_HDF}")
+    print(f"\nAll segmented data saved to {WIN_HDF}")
 
 if __name__ == "__main__":
     segment_and_save()

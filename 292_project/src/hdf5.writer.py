@@ -73,11 +73,10 @@ def write_to_hdf5():
                     # chooses where to output data
                     dataset_path = f"raw/{participant}/{position}/{activity}"
                     hdf.create_dataset(dataset_path, data=data, compression="gzip")
-                    print(f"✅ Saved: {dataset_path} ({filename})")
+                    print(f"Saved: {dataset_path} ({filename})")
 
                 except Exception as e:
-                    print(f"❌ Error processing {filename}: {e}")
-
+                    print(f"Error processing {filename}: {e}")
 
 if __name__ == "__main__":
     write_to_hdf5()

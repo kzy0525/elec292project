@@ -14,7 +14,8 @@ def load_trained_model():
     model.fit([[0]*30, [1]*30], [0,1])
     return model
 
-# Feature Extraction
+#extracts features from the input csv file because the model requires 10 features from the training
+#but the input csv does not have those
 def extract_features(window):
     features = []
     for axis in ['x', 'y', 'z']:
@@ -79,7 +80,7 @@ class PredictionApp:
             messagebox.showerror("Error", "CSV must contain columns: x, y, z")
             return
 
-        # === Segment into 5-second windows ===
+        #segment into 5 second windows
         sample_rate = 50
         window_size = 5 * sample_rate
 
@@ -91,25 +92,22 @@ class PredictionApp:
 
         X = np.array(segments)
 
-        # === Predict per window ===
+        #classify walking/jumping for eah 5 second window
         y_pred = self.model.predict(X)
         labels = ["walking" if pred == 0 else "jumping" for pred in y_pred]
 
-        # === Prepare prediction table ===
+        #create the graph
         self.predictions = pd.DataFrame({
             "Window #": np.arange(1, len(labels) + 1),
             "Predicted Class": labels
         })
 
-        # === Plot ===
-        # === Scatter Plot ===
+        #create scatter plot for either walking or jumping
         self.ax.clear()
         y_numeric = [1 if label == "jumping" else 0 for label in self.predictions["Predicted Class"]]
 
-        # Create a color list based on class
+        #colour code it red for jumping and blue for walking
         colors = ['red' if y == 1 else 'blue' for y in y_numeric]
-
-        # Scatter plot with color per point
         self.ax.scatter(self.predictions["Window #"], y_numeric,
                         c=colors, marker='o', alpha=0.8)
         self.ax.set_title("Activity vs Time (Window Index)")
@@ -118,16 +116,13 @@ class PredictionApp:
         self.ax.set_yticks([0, 1])
         self.ax.set_yticklabels(["Walking (Blue)", "Jumping (Red)"])
         self.ax.grid(True)
-
         self.fig.tight_layout(pad=3.0)
 
-        # Only now show the canvas for the first time
+        #creates the graph visual only after the processing is complete
         if not hasattr(self, 'canvas_shown') or not self.canvas_shown:
             self.canvas.get_tk_widget().pack(pady=10)
             self.canvas_shown = True
-
         self.canvas.draw()
-
         self.save_button.config(state=tk.NORMAL)
         messagebox.showinfo("Done", "Classification complete. You can now export.")
 
