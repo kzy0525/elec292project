@@ -18,7 +18,7 @@ else:
     FEATURES_CSV = DEFAULT_FEATURES_CSV
 
 # Step 1: Load features
-print(f"📥 Loading features from {FEATURES_CSV}...")
+print(f"Loading features from {FEATURES_CSV}...")
 df = pd.read_csv(FEATURES_CSV)
 X = df.drop("label", axis=1).values if "label" in df.columns else df.values
 y = df["label"].values if "label" in df.columns else None
@@ -32,21 +32,19 @@ if y is not None:
     print(f"✅ Split: {X_train.shape[0]} train / {X_test.shape[0]} test")
 
     # Train logistic regression model
-    print("🚀 Training logistic regression model...")
     model = LogisticRegression(max_iter=500)
     model.fit(X_train, y_train)
 
     # Evaluate on test set
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print(f"\n🎯 Test Accuracy: {accuracy * 100:.2f}%")
+    print(f"\nTest Accuracy: {accuracy * 100:.2f}%")
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred, target_names=["Walking", "Jumping"]))
     print("Confusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-    # Plot learning curve
-    print("📊 Plotting learning curve...")
+
     train_sizes, train_scores, test_scores = learning_curve(
         LogisticRegression(max_iter=500), X, y, cv=5,
         train_sizes=np.linspace(0.1, 1.0, 10), scoring='accuracy'
@@ -72,7 +70,7 @@ if y is not None:
     df_out["predicted_class"] = ["walking" if label == 0 else "jumping" for label in y_pred]
     os.makedirs(os.path.dirname(OUTPUT_PREDICTIONS_CSV), exist_ok=True)
     df_out.to_csv(OUTPUT_PREDICTIONS_CSV, index=False)
-    print(f"✅ Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
+    print(f"Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
 
 # Step 3: If no labels, make predictions using pretrained model
 else:
@@ -85,4 +83,4 @@ else:
     df_out["predicted_label"] = y_pred
     df_out["predicted_class"] = ["walking" if label == 0 else "jumping" for label in y_pred]
     df_out.to_csv(OUTPUT_PREDICTIONS_CSV, index=False)
-    print(f"✅ Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
+    print(f"Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
