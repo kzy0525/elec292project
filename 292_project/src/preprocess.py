@@ -1,28 +1,28 @@
 import h5py
 import numpy as np
 import pandas as pd
-import os
 
-# Input/output HDF5 paths
+# path to the CSV folders for the raw data input and preprocessed data output
 raw_hdf5_path = "data/accelerometer_data.h5"
 pre_hdf5_path = "data/accelerometer_preprocessed.h5"
 
-WINDOW_SIZE = 5
+# window size used for the average smoothing, able to adjust based on goal (between 5 and 15ish)
+WINDOW_SIZE = 10
 
-
+# function that does the smoothing
 def moving_average_filter(data, window=WINDOW_SIZE):
     smoothed = np.copy(data)
     for i in range(1, 4):  # x, y, z
         smoothed[:, i] = pd.Series(data[:, i]).rolling(window=window, min_periods=1, center=True).mean()
     return smoothed
 
-
+# function in preprocessing to fill in gaps in data
 def fill_missing(data):
     df = pd.DataFrame(data, columns=["time", "x", "y", "z", "label"])
     df = df.fillna(method="ffill").fillna(method="bfill")
     return df.to_numpy(dtype=np.float32)
 
-
+# saves the smoothed and filled in data into the "preprocessed" hdf5 file
 def preprocess_and_save():
     with h5py.File(raw_hdf5_path, "r") as raw_hdf, h5py.File(pre_hdf5_path, "w") as pre_hdf:
         pre_group = pre_hdf.create_group("preprocessed")

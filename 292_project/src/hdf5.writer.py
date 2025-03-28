@@ -3,13 +3,12 @@ import pandas as pd
 import numpy as np
 import h5py
 
-# Path to the raw CSV folders by participant
+# path to the raw CSV folders and creates output at the HDF5 file
 CSV_ROOT_FOLDER = "../data/raw/"
 HDF5_OUTPUT_PATH = "data/accelerometer_data.h5"
 
-
+# standardizes the columns of the CSV file
 def clean_column_names(df):
-    """Standardizes column names to: time, x, y, z, abs (if available)."""
     return df.rename(columns={
         "Time (s)": "time",
         "Acceleration x (m/s^2)": "x",
@@ -18,12 +17,9 @@ def clean_column_names(df):
         "Absolute acceleration (m/s^2)": "abs"
     })
 
-
+## determines activity and position based on the file name
 def parse_metadata(filename):
-    """Infers activity and position from filename."""
     fname = filename.lower()
-
-    # Determine activity
     if "walking" in fname:
         activity = "walking"
     elif "jumping" in fname:
@@ -31,7 +27,6 @@ def parse_metadata(filename):
     else:
         raise ValueError(f"Unknown activity in filename: {filename}")
 
-    # Determine position
     if "hand" in fname or "hh" in fname:
         position = "hand"
     elif "pants" in fname or "pp" in fname:
@@ -43,7 +38,7 @@ def parse_metadata(filename):
 
     return activity, position
 
-
+# writes output into the hdf5 file, will create it if file does not exist
 def write_to_hdf5():
     os.makedirs(os.path.dirname(HDF5_OUTPUT_PATH), exist_ok=True)
 
@@ -51,34 +46,31 @@ def write_to_hdf5():
         for participant in os.listdir(CSV_ROOT_FOLDER):
             participant_path = os.path.join(CSV_ROOT_FOLDER, participant)
             if not os.path.isdir(participant_path):
-                continue  # Skip files in /raw/ folder root
+                continue
 
             for filename in os.listdir(participant_path):
                 if not filename.endswith(".csv"):
                     continue
-
                 file_path = os.path.join(participant_path, filename)
 
                 try:
-                    # Load and clean data
                     df = pd.read_csv(file_path)
                     df = clean_column_names(df)
 
-                    # Ensure x, y, z columns exist
+                    # ensures x, y, z columns exist
                     if not all(col in df.columns for col in ["x", "y", "z"]):
                         print(f"⚠️ Skipped {filename}: missing x/y/z columns")
                         continue
 
-                    # Add label: 0 = walking, 1 = jumping
+                    # labels walking as "0" and jumping as "1"
                     activity, position = parse_metadata(filename)
                     label = 1 if activity == "jumping" else 0
                     df["label"] = label
 
-                    # Select columns to save
+                    # choosing to select specific columns to save
                     data = df[["time", "x", "y", "z", "label"]].to_numpy(dtype=np.float32)
 
-
-                    # HDF5 dataset path
+                    # chooses where to output data
                     dataset_path = f"raw/{participant}/{position}/{activity}"
                     hdf.create_dataset(dataset_path, data=data, compression="gzip")
                     print(f"✅ Saved: {dataset_path} ({filename})")
