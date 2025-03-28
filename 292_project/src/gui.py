@@ -58,7 +58,7 @@ class PredictionApp:
         self.canvas = FigureCanvasTkAgg(self.fig, master)
 
     def load_csv(self):
-        file_path = filedialog.askopenfilename(title="Select Raw CSV", filetypes=[("CSV files", "*.csv")])
+        file_path = filedialog.askopenfilename(title="Select CSV", filetypes=[("CSV files", "*.csv")])
         if not file_path:
             return
 
