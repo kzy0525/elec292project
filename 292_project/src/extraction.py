@@ -25,12 +25,19 @@ def extract_features_from_window(window):
     features = []
     for axis in range(1, 4):  # x, y, z
         data = window[:, axis]
+        if np.all(data == data[0]):
+            # If all values are the same, skew is undefined
+            skew_val = 0.0
+        else:
+            skew_val = skew(data)
+
         features.extend([
             np.max(data), np.min(data), np.ptp(data), np.mean(data), np.median(data),
-            np.var(data), np.std(data), skew(data),
+            np.var(data), np.std(data), skew_val,
             np.sqrt(np.mean(data ** 2)), np.mean(np.abs(data - np.mean(data)))
         ])
     return features
+
 
 def extract_features_for_all():
     rows = []

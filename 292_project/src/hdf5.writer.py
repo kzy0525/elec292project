@@ -17,7 +17,7 @@ def clean_column_names(df):
         "Absolute acceleration (m/s^2)": "abs"
     })
 
-## determines activity and position based on the file name
+# determines activity and position based on the file name
 def parse_metadata(filename):
     fname = filename.lower()
     if "walking" in fname:

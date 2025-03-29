@@ -84,3 +84,12 @@ else:
     df_out["predicted_class"] = ["walking" if label == 0 else "jumping" for label in y_pred]
     df_out.to_csv(OUTPUT_PREDICTIONS_CSV, index=False)
     print(f"Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
+
+train_accuracy = model.score(X_train, y_train)
+test_accuracy = model.score(X_test, y_test)
+
+print(f"Train Accuracy: {train_accuracy * 100:.2f}%")
+print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
+
+print(f"Train set size: {len(X_train)} samples ({len(X_train) / len(X) * 100:.2f}%)")
+print(f"Test set size: {len(X_test)} samples ({len(X_test) / len(X) * 100:.2f}%)")
