@@ -36,6 +36,7 @@ def extract_features_from_window(window):
             np.var(data), np.std(data), skew_val,
             np.sqrt(np.mean(data ** 2)), np.mean(np.abs(data - np.mean(data)))
         ])
+
     return features
 
 

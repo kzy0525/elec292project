@@ -139,13 +139,14 @@ def compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity
 # main file to call on the visualization functions
 if __name__ == "__main__":
     #comparing the smoothed preprocessed data vs raw data (x = 0, y = 1, z = 2)
-    compare_raw_vs_preprocessed(participant="kevin", position="hand", activity="walking", axis=0)
-    compare_raw_vs_preprocessed(participant="kevin", position="pants", activity="jumping", axis=1)
-    compare_raw_vs_preprocessed(participant="evan", position="jacket", activity="walking", axis=2)
+    #compare_raw_vs_preprocessed(participant="kevin", position="hand", activity="walking", axis=0)
+    #compare_raw_vs_preprocessed(participant="kevin", position="pants", activity="jumping", axis=1)
+    #compare_raw_vs_preprocessed(participant="evan", position="jacket", activity="walking", axis=2)
 
     #graphs for all the acceleration vs time graphs
     #visualize_acceleration_for_participant("kevin")
     #visualize_acceleration_for_participant("evan")
+    visualize_acceleration_for_participant("simon")
 
     #graphs for 3d scatter plots
     #visualize_3d_scatter_for("kevin", "hand")
@@ -153,4 +154,4 @@ if __name__ == "__main__":
 
     #graphs for the frequency histograms
     #visualize_histograms_for("kevin", "hand")
-    visualize_histograms_for("evan", "jacket")
+    #visualize_histograms_for("evan", "jacket")
