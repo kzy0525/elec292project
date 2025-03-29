@@ -1,6 +1,7 @@
-import h5py
 import numpy as np
 import pandas as pd
+import h5py
+
 
 # path to the CSV folders for the raw data input and preprocessed data output
 raw_hdf5_path = "data/accelerometer_data.h5"
@@ -19,7 +20,7 @@ def moving_average_filter(data, window=WINDOW_SIZE):
 # function in preprocessing to fill in gaps in data
 def fill_missing(data):
     df = pd.DataFrame(data, columns=["time", "x", "y", "z", "label"])
-    df = df.fillna(method="ffill").fillna(method="bfill")
+    df.interpolate(method='linear',inplace = True)
     return df.to_numpy(dtype=np.float32)
 
 # saves the smoothed and filled in data into the "preprocessed" hdf5 file
@@ -32,7 +33,6 @@ def preprocess_and_save():
                 for activity in raw_hdf["raw"][participant][position]:
                     path = f"raw/{participant}/{position}/{activity}"
                     data = raw_hdf[path][:]
-
                     # Preprocess: fill NaNs and apply moving average
                     data = fill_missing(data)
                     data = moving_average_filter(data)
