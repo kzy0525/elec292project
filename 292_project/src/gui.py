@@ -7,12 +7,15 @@ from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
+import joblib
 
 # Dummy Model (replace with your real model)
+# Load the actual trained model
 def load_trained_model():
-    model = LogisticRegression(max_iter=500)
-    model.fit([[0]*30, [1]*30], [0,1])
-    return model
+    if not os.path.exists("model.joblib"):
+        raise FileNotFoundError("Trained model (model.joblib) not found! Please run train.py first.")
+    return joblib.load("model.joblib")
+
 
 #extracts features from the input csv file because the model requires 10 features from the training
 #but the input csv does not have those
