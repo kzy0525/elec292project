@@ -26,26 +26,27 @@ y = df["label"].values if "label" in df.columns else None
 
 # split the model into 90:10 ration of training and testing, then classify
 if y is not None:
-    # Train/test split (90/10, no overlap)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.1, random_state=42, stratify=y
     )
     print(f"✅ Split: {X_train.shape[0]} train / {X_test.shape[0]} test")
 
-    # Train logistic regression model
+    # training the logistic regression model
     model = LogisticRegression(max_iter=500)
     model.fit(X_train, y_train)
 
-    # Evaluate on test set
+    # check the accuracy of the model on the test files
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
     print(f"\nTest Accuracy: {accuracy * 100:.2f}%")
     print("\nClassification Report:")
+    # prints classification report using sklearn
     print(classification_report(y_test, y_pred, target_names=["Walking", "Jumping"]))
     print("Confusion Matrix:")
+    # prints confusion matrix using sklearn
     print(confusion_matrix(y_test, y_pred))
 
-
+    # finds the values needed for the learning curve plot
     train_sizes, train_scores, test_scores = learning_curve(
         LogisticRegression(max_iter=500), X, y, cv=5,
         train_sizes=np.linspace(0.1, 1.0, 10), scoring='accuracy'
@@ -53,6 +54,7 @@ if y is not None:
     train_scores_mean = train_scores.mean(axis=1)
     test_scores_mean = test_scores.mean(axis=1)
 
+    # plots the learning curve
     plt.figure(figsize=(10, 6))
     plt.plot(train_sizes, train_scores_mean, label="Training Accuracy", marker='o')
     plt.plot(train_sizes, test_scores_mean, label="Validation Accuracy", marker='x')
@@ -74,7 +76,7 @@ if y is not None:
     #print(f"Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
 
     print("")
-# Step 3: If no labels, make predictions using pretrained model
+# edge cases
 else:
     print("No labels found in input CSV. Skipping training, predicting only.")
     # Load model (could be replaced with pre-trained model loader)
@@ -90,12 +92,13 @@ else:
 train_accuracy = model.score(X_train, y_train)
 test_accuracy = model.score(X_test, y_test)
 
-
+# prints all the data needed for the report like test sizes and accuracies
 print(f"Train set size: {len(X_train)} samples ({len(X_train) / len(X) * 100:.2f}%)")
 print(f"Test set size: {len(X_test)} samples ({len(X_test) / len(X) * 100:.2f}%)")
 print(f"Train Accuracy: {train_accuracy * 100:.2f}%")
 print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
 
+# saves model which can be called in the GUI
 print("")
 joblib.dump(model, "model.joblib")
 print("Model saved as model.joblib")

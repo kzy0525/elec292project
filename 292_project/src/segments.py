@@ -23,7 +23,9 @@ def segment_and_save():
             for position in pre_hdf["preprocessed"][participant]:
                 for activity in pre_hdf["preprocessed"][participant][position]:
                     data = pre_hdf[f"preprocessed/{participant}/{position}/{activity}"][:]
+                    # creates a 5th label in the hdf5 for walking or jumping classification
                     label = "walking" if int(data[0, 4]) == 0 else "jumping"
+                    # segments the continuous signal into smaller sliding windows
                     windows = segment_data(data[:, 1:4], STEP)  # x, y, z only
                     train_segments[label].extend(windows)
 

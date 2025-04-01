@@ -33,7 +33,7 @@ def preprocess_and_save():
                 for activity in raw_hdf["raw"][participant][position]:
                     path = f"raw/{participant}/{position}/{activity}"
                     data = raw_hdf[path][:]
-                    # Preprocess: fill NaNs and apply moving average
+                    # preprocess: fill NaNs and apply moving average
                     data = fill_missing(data)
                     data = moving_average_filter(data)
 
