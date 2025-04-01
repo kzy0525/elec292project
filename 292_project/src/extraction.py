@@ -31,6 +31,7 @@ def extract_features_from_window(window):
         else:
             skew_val = skew(data)
 
+        # uses numpy functions for the values
         features.extend([
             np.max(data), np.min(data), np.ptp(data), np.mean(data), np.median(data),
             np.var(data), np.std(data), skew_val,
@@ -39,7 +40,8 @@ def extract_features_from_window(window):
 
     return features
 
-
+# extract all the features and create a new hdf5 file for each person, activity, and position
+# with the features and values
 def extract_features_for_all():
     rows = []
     with h5py.File(INPUT_HDF, "r") as hdf:
@@ -62,6 +64,7 @@ def extract_features_for_all():
     df = pd.DataFrame(rows, columns=col_names)
     os.makedirs(os.path.dirname(RAW_FEATURES_CSV), exist_ok=True)
     df.to_csv(RAW_FEATURES_CSV, index=False)
+    # print statement to confirm completion of function
     print(f"Extracted features saved to {RAW_FEATURES_CSV}")
 
 def normalize_features():
@@ -74,8 +77,10 @@ def normalize_features():
     df_scaled = pd.DataFrame(normalized, columns=features.columns)
     df_scaled["label"] = labels
     df_scaled.to_csv(NORMALIZED_FEATURES_CSV, index=False)
+    # print statement to confirm completion of function
     print(f"Normalized features saved to {NORMALIZED_FEATURES_CSV}")
 
+# main function to call the extraction functions created above
 if __name__ == "__main__":
     extract_features_for_all()
     normalize_features()

@@ -71,8 +71,9 @@ if y is not None:
     df_out["predicted_class"] = ["walking" if label == 0 else "jumping" for label in y_pred]
     os.makedirs(os.path.dirname(OUTPUT_PREDICTIONS_CSV), exist_ok=True)
     df_out.to_csv(OUTPUT_PREDICTIONS_CSV, index=False)
-    print(f"Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
+    #print(f"Predictions saved to {OUTPUT_PREDICTIONS_CSV}")
 
+    print("")
 # Step 3: If no labels, make predictions using pretrained model
 else:
     print("No labels found in input CSV. Skipping training, predicting only.")
@@ -89,12 +90,13 @@ else:
 train_accuracy = model.score(X_train, y_train)
 test_accuracy = model.score(X_test, y_test)
 
-print(f"Train Accuracy: {train_accuracy * 100:.2f}%")
-print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
 
 print(f"Train set size: {len(X_train)} samples ({len(X_train) / len(X) * 100:.2f}%)")
 print(f"Test set size: {len(X_test)} samples ({len(X_test) / len(X) * 100:.2f}%)")
+print(f"Train Accuracy: {train_accuracy * 100:.2f}%")
+print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
 
+print("")
 joblib.dump(model, "model.joblib")
 print("Model saved as model.joblib")
 
