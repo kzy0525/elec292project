@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import matplotlib.pyplot as plt
 import sys
 import os
+import joblib
 
 # paths
 DEFAULT_FEATURES_CSV = "data/features_normalized.csv"
@@ -93,3 +94,7 @@ print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
 
 print(f"Train set size: {len(X_train)} samples ({len(X_train) / len(X) * 100:.2f}%)")
 print(f"Test set size: {len(X_test)} samples ({len(X_test) / len(X) * 100:.2f}%)")
+
+joblib.dump(model, "model.joblib")
+print("Model saved as model.joblib")
+
