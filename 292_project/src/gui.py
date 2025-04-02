@@ -85,7 +85,7 @@ class PredictionApp:
             return
 
         # segment into 5 second windows
-        sample_rate = 50
+        sample_rate = 100
         window_size = 5 * sample_rate
 
         segments = []
