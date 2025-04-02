@@ -1,13 +1,12 @@
 import h5py
 import numpy as np
 
-
 # paths
 PRE_HDF = "data/accelerometer_preprocessed.h5"
 WIN_HDF = "data/windowed_segments.h5"
 
 WINDOW_SIZE = 5      # seconds
-SAMPLE_RATE = 50     # samples per second
+SAMPLE_RATE = 100     # samples per second
 STEP = WINDOW_SIZE * SAMPLE_RATE
 
 def segment_data(data, step):

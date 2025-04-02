@@ -12,7 +12,7 @@ NORMALIZED_FEATURES_CSV = "data/features_normalized.csv"
 
 # calculating step for 5 second windows
 WINDOW_SIZE = 5  # seconds
-SAMPLE_RATE = 50  # samples/sec
+SAMPLE_RATE = 100  # samples/sec
 STEP = WINDOW_SIZE * SAMPLE_RATE
 
 # takes continuous time-series data and splits it into non-overlapping segments
