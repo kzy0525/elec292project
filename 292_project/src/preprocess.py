@@ -14,7 +14,6 @@ WINDOW_SIZE = 10
 POLLING_FREQ = 100
 # function that does the smoothing
 def moving_average_filter(data, window=WINDOW_SIZE):
-    data = data.to_numpy()
     smoothed = np.copy(data)
     for i in range(1, 4):  # x, y, z
 
@@ -28,30 +27,26 @@ def fill_missing(data):
     return df.to_numpy(dtype=np.float32)
 
 def normalize_polling_frequency(data):
-    # Convert the time column to datetime if it isn't already
-    df = pd.DataFrame(data, columns=['time', 'x', 'y', 'z', 'label'])
-    df['time'] = pd.to_numeric(df['time'])
+    # Extract the time column (assumed to be in seconds) and ensure it's sorted
+    times = data[:, 0]
 
-    # Set the time column as the index
-    df.index = pd.to_timedelta(df['time'], unit='s')
-    period_seconds = 1 / POLLING_FREQ
+    # Determine the start and end times for the data
+    t_start, t_end = times[0], times[-1]
 
-    # Create a new, uniformly spaced time index spanning the data range
-    new_index = pd.timedelta_range(start=df.index.min(),
-                                   end=df.index.max(),
-                                   freq=pd.to_timedelta(period_seconds, unit='s'))
+    sampling_interval = 1.0 / 100
+    new_times = np.arange(t_start, t_end, sampling_interval)
+    downsampled_data = np.empty((len(new_times), data.shape[1]))
 
-    # Reindex the DataFrame using the new index
-    df_normalized = df.reindex(new_index)
+    # The new time column is the first column of the downsampled data.
+    downsampled_data[:, 0] = new_times
 
-    # Interpolate to fill in missing values (time-based interpolation)
-    df_normalized = df_normalized.interpolate(method='time')
+    # For each additional column, interpolate values at the new time stamps.
+    for col in range(data.shape[1]):
+        if col == 0:
+            continue
+        downsampled_data[:, col] = np.interp(new_times, times, data[:, col])
 
-    # Optional: Reset index and convert the timedelta index back to seconds
-    df_normalized['time'] = df_normalized.index.total_seconds()
-    df_normalized.reset_index(drop=True, inplace=True)
-    print(df_normalized)
-    return df_normalized
+    return downsampled_data
 
 # saves the smoothed and filled in data into the "preprocessed" hdf5 file
 def preprocess_and_save():
