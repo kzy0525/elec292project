@@ -9,7 +9,38 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
 import joblib
 from sklearn.preprocessing import StandardScaler
+def moving_average_filter(data):
+    data = data.to_numpy()
+    smoothed = np.copy(data)
+    for i in range(1, 4):  # x, y, z
 
+        smoothed[:, i] = pd.Series(data[:, i]).rolling(window=10, min_periods=1, center=True).mean()
+    return smoothed
+
+def normalize_polling_frequency(data):
+    # Convert the time column to datetime if it isn't already
+    print(data)
+    df = pd.DataFrame(data, columns=['time', 'x', 'y', 'z'])
+
+    df.index = pd.to_timedelta(df['time'], unit='s')
+    interval_ms = 10  # milliseconds per sample
+    if interval_ms.is_integer():
+        interval_str = f"{int(interval_ms)}ms"
+    else:
+        # If the interval is not an integer number of milliseconds, create a Timedelta.
+        interval_str = pd.Timedelta(milliseconds=interval_ms)
+
+    # Resample the DataFrame using the calculated interval.
+    # Here, we use the mean as the aggregation function, but you can change this if needed.
+    downsampled = df.resample(interval_str).mean()
+
+    # Optionally, add the time back as a column in seconds.
+    downsampled['time'] = downsampled.index.total_seconds()
+
+    # Reset the index if you prefer to work with a regular DataFrame.
+    downsampled = downsampled.reset_index(drop=True)
+    print(downsampled)
+    return downsampled
 
 # load the trained model from the train.py file to use for the GUI
 def load_trained_model():
@@ -86,7 +117,10 @@ class PredictionApp:
         if not all(col in df.columns for col in ['x', 'y', 'z']):
             messagebox.showerror("Error", "CSV must contain columns: x, y, z")
             return
-
+        df = df.drop('Absolute acceleration (m/s^2)', axis=1)
+        df = normalize_polling_frequency(df.to_numpy())
+        df = moving_average_filter(df)
+        df = pd.DataFrame(df, columns=['time', 'x', 'y', 'z'])
         # segment into 5 second windows
         sample_rate = 100
         window_size = 5 * sample_rate
