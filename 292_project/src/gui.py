@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
 import joblib
+from sklearn.preprocessing import StandardScaler
+
 
 # load the trained model from the train.py file to use for the GUI
 def load_trained_model():
@@ -40,6 +42,7 @@ class PredictionApp:
         self.model = load_trained_model()
         self.predictions = None
         self.file_path = None
+        self.scaler = StandardScaler()
 
         tk.Label(master, text="Elec 292 Project", font=("Arial", 20)).pack(pady=10)
         tk.Label(master, text="Jumping / Walking Classifier Model", font=("Arial", 10)).pack(pady=2)
@@ -93,11 +96,13 @@ class PredictionApp:
             window = df.iloc[start:start+window_size]
             features = extract_features(window)
             segments.append(features)
-
+        print(segments)
         X = np.array(segments)
-
+        X = self.scaler.fit_transform(X)
         # classify walking/jumping for eah 5 second window
-        y_pred = self.model.predict(X)
+        y_pred = self.model.predict(X.tolist())
+        print('x is ', X)
+        print(y_pred)
         labels = ["walking" if pred == 0 else "jumping" for pred in y_pred]
 
         # create the graph
