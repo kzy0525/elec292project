@@ -5,7 +5,6 @@ import h5py
 # path to the CSV folders for the raw data input and preprocessed data output
 hdf5_path = "../data/accelerometer_all.h5"
 
-
 # window size used for the average smoothing, able to adjust based on goal (between 5 and 15ish)
 WINDOW_SIZE = 10
 
@@ -57,6 +56,7 @@ def preprocess_and_save():
 if __name__ == "__main__":
     preprocess_and_save()
 
+# checking correct directory
 with h5py.File("../data/accelerometer_all.h5", "r") as hdf:
     print("Top-level groups:")
     for key in hdf.keys():

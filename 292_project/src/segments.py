@@ -49,6 +49,7 @@ def segment_and_save():
 if __name__ == "__main__":
     segment_and_save()
 
+# checking correct directory
 with h5py.File("../data/accelerometer_all.h5", "r") as hdf:
     print("Top-level groups:")
     for key in hdf.keys():

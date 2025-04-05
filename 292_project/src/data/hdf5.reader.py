@@ -14,7 +14,7 @@ def explore_hdf5_file(file_path):
             for position in hdf[f"raw/{participant}"]:
                 for activity in hdf[f"raw/{participant}/{position}"]:
                     path = f"raw/{participant}/{position}/{activity}"
-                    data = hdf[path][:5]  # Preview first 5 rows
+                    data = hdf[path][:5]
                     print(f"\n🔹 {path} → Shape: {hdf[path].shape}")
                     print(data)
 
