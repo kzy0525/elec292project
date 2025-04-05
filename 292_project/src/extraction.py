@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 import os
 
 # input output files
-INPUT_HDF = "data/accelerometer_preprocessed.h5"
+INPUT_HDF = "../data/accelerometer_all.h5"
 RAW_FEATURES_CSV = "data/features.csv"
 NORMALIZED_FEATURES_CSV = "data/features_normalized.csv"
 
@@ -14,6 +14,7 @@ NORMALIZED_FEATURES_CSV = "data/features_normalized.csv"
 WINDOW_SIZE = 5  # seconds
 SAMPLE_RATE = 100  # samples/sec
 STEP = WINDOW_SIZE * SAMPLE_RATE
+
 
 # takes continuous time-series data and splits it into non-overlapping segments
 def segment_data(data, step):
@@ -45,10 +46,10 @@ def extract_features_from_window(window):
 def extract_features_for_all():
     rows = []
     with h5py.File(INPUT_HDF, "r") as hdf:
-        for participant in hdf["preprocessed"]:
-            for position in hdf["preprocessed"][participant]:
-                for activity in hdf["preprocessed"][participant][position]:
-                    path = f"preprocessed/{participant}/{position}/{activity}"
+        for participant in hdf["Pre-processed data"]:
+            for position in hdf[f"Pre-processed data/{participant}"]:
+                for activity in hdf[f"Pre-processed data/{participant}/{position}"]:
+                    path = f"Pre-processed data/{participant}/{position}/{activity}"
                     data = hdf[path][:]
                     label = int(data[0, 4])
                     windows = segment_data(data, STEP)

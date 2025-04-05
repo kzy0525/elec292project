@@ -5,7 +5,7 @@ import h5py
 
 # path to the raw CSV folders and creates output at the HDF5 file
 CSV_ROOT_FOLDER = "../data/raw/"
-HDF5_OUTPUT_PATH = "data/accelerometer_data.h5"
+HDF5_OUTPUT_PATH = "../data/accelerometer_all.h5"
 
 # standardizes the columns of the CSV file
 def clean_column_names(df):

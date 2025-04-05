@@ -3,8 +3,8 @@ import pandas as pd
 import h5py
 
 # path to the CSV folders for the raw data input and preprocessed data output
-raw_hdf5_path = "data/accelerometer_data.h5"
-pre_hdf5_path = "data/accelerometer_preprocessed.h5"
+hdf5_path = "../data/accelerometer_all.h5"
+
 
 # window size used for the average smoothing, able to adjust based on goal (between 5 and 15ish)
 WINDOW_SIZE = 10
@@ -24,23 +24,40 @@ def fill_missing(data):
 
 # saves the smoothed and filled in data into the "preprocessed" hdf5 file
 def preprocess_and_save():
-    with h5py.File(raw_hdf5_path, "r") as raw_hdf, h5py.File(pre_hdf5_path, "w") as pre_hdf:
-        pre_group = pre_hdf.create_group("preprocessed")
+    with h5py.File(hdf5_path, "a") as hdf:
 
-        for participant in raw_hdf["raw"]:
-            for position in raw_hdf["raw"][participant]:
-                for activity in raw_hdf["raw"][participant][position]:
+        # Check if raw data exists
+        if "raw" not in hdf:
+            print("'Raw data' group not found in HDF5. Please run the raw data import script first.")
+            return
+
+        pre_group = hdf.require_group("Pre-processed data")
+
+        for participant in hdf["raw"]:
+            for position in hdf[f"raw/{participant}"]:
+                for activity in hdf[f"raw/{participant}/{position}"]:
                     path = f"raw/{participant}/{position}/{activity}"
-                    data = raw_hdf[path][:]
-                    # preprocess: fill NaNs and apply moving average
-                    data = fill_missing(data)
-                    data = moving_average_filter(data)
+                    try:
+                        data = hdf[path][:]
+                        data = fill_missing(data)
+                        data = moving_average_filter(data)
 
-                    # Save to new HDF5
-                    group_path = f"preprocessed/{participant}/{position}"
-                    pre_hdf.require_group(group_path)
-                    pre_hdf.create_dataset(f"{group_path}/{activity}", data=data, compression="gzip")
-                    print(f"Saved to new file: {group_path}/{activity}")
+                        group_path = f"Pre-processed data/{participant}/{position}"
+                        dataset_path = f"{group_path}/{activity}"
+
+                        hdf.require_group(group_path)
+                        if dataset_path in hdf:
+                            del hdf[dataset_path]
+                        hdf.create_dataset(dataset_path, data=data, compression="gzip")
+
+                        print(f"Saved: {dataset_path}")
+                    except Exception as e:
+                        print(f"Failed to process {path}: {e}")
 
 if __name__ == "__main__":
     preprocess_and_save()
+
+with h5py.File("../data/accelerometer_all.h5", "r") as hdf:
+    print("Top-level groups:")
+    for key in hdf.keys():
+        print(f" - {key}")
