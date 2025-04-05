@@ -33,11 +33,13 @@ if y is not None:
 
     # training the logistic regression model
     model = LogisticRegression(max_iter=500)
+
     model.fit(X_train, y_train)
 
     # check the accuracy of the model on the test files
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
+
     print(f"\nTest Accuracy: {accuracy * 100:.2f}%")
     print("\nClassification Report:")
     # prints classification report using sklearn

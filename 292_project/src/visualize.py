@@ -126,8 +126,8 @@ def compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity
         axis_name = ['X', 'Y', 'Z'][axis]
 
         plt.figure(figsize=(12, 5))
-        plt.plot(time, raw[:, axis + 1], label=f"Raw {axis_name}", alpha=0.5)
-        plt.plot(time, clean[:, axis + 1], label=f"Smoothed {axis_name}", linewidth=2)
+        plt.plot(time[:10000], raw[:10000, axis + 1], label=f"Raw {axis_name}", alpha=0.5)
+        plt.plot(time[:10000], clean[:10000, axis + 1], label=f"Smoothed {axis_name}", linewidth=2)
         plt.title(f"{axis_name}-Axis: Raw vs. Preprocessed\n{participant.title()} - {position.title()} - {activity.title()}")
         plt.xlabel("Time (s)")
         plt.ylabel("Acceleration (m/s²)")
@@ -139,19 +139,20 @@ def compare_raw_vs_preprocessed(participant="kevin", position="jacket", activity
 # main file to call on the visualization functions
 if __name__ == "__main__":
     #comparing the smoothed preprocessed data vs raw data (x = 0, y = 1, z = 2)
-    compare_raw_vs_preprocessed(participant="kevin", position="hand", activity="walking", axis=0)
+    #compare_raw_vs_preprocessed(participant="kevin", position="hand", activity="walking", axis=0)
     #compare_raw_vs_preprocessed(participant="kevin", position="pants", activity="jumping", axis=1)
     #compare_raw_vs_preprocessed(participant="evan", position="jacket", activity="walking", axis=2)
+    compare_raw_vs_preprocessed(participant="simon", position="jacket", activity="walking", axis=2)
 
     #graphs for all the acceleration vs time graphs
     #visualize_acceleration_for_participant("kevin")
     #visualize_acceleration_for_participant("evan")
-    visualize_acceleration_for_participant("simon")
+    #visualize_acceleration_for_participant("simon")
 
     #graphs for 3d scatter plots
     #visualize_3d_scatter_for("kevin", "hand")
-    visualize_3d_scatter_for("evan", "jacket")
+    #visualize_3d_scatter_for("evan", "jacket")
 
     #graphs for the frequency histograms
-    visualize_histograms_for("kevin", "hand")
+    #visualize_histograms_for("kevin", "hand")
     #visualize_histograms_for("evan", "jacket")

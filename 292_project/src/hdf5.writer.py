@@ -59,7 +59,7 @@ def write_to_hdf5():
 
                     # ensures x, y, z columns exist
                     if not all(col in df.columns for col in ["x", "y", "z"]):
-                        print(f"⚠️ Skipped {filename}: missing x/y/z columns")
+                        print(f"Skipped {filename}: missing x/y/z columns")
                         continue
 
                     # labels walking as "0" and jumping as "1"
