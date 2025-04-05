@@ -49,4 +49,3 @@ def segment_and_save():
 
 if __name__ == "__main__":
     segment_and_save()
-

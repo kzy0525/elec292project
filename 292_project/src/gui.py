@@ -3,7 +3,6 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 import numpy as np
 from scipy.stats import skew
-from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os

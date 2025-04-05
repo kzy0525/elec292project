@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import h5py
 
-
 # path to the CSV folders for the raw data input and preprocessed data output
 raw_hdf5_path = "data/accelerometer_data.h5"
 pre_hdf5_path = "data/accelerometer_preprocessed.h5"
